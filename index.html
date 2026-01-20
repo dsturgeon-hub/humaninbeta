@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Human in Beta — a personal lab for thinking, building, and improving over time." />
+    <title>Human in Beta</title>
+
+    <style>
+      :root{
+        --bg:#0b0c10;
+        --panel:#0f1117;
+        --text:#e9eef7;
+        --muted:#a8b3c7;
+        --border:rgba(233,238,247,.12);
+        --link:#e9eef7;
+        --shadow: 0 10px 30px rgba(0,0,0,.35);
+        --radius: 16px;
+        --max: 980px;
+      }
+
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0;
+        font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        color:var(--text);
+        background: radial-gradient(1200px 700px at 20% 10%, rgba(110,168,254,.18), transparent 60%),
+                    radial-gradient(1000px 600px at 90% 20%, rgba(167,139,250,.16), transparent 55%),
+                    var(--bg);
+      }
+
+      a{color:var(--link); text-decoration:none}
+      a:hover{text-decoration:underline}
+      .wrap{max-width:var(--max); margin:0 auto; padding:28px 20px 60px}
+      header{
+        display:flex; align-items:center; justify-content:space-between;
+        gap:16px;
+        padding:10px 0 24px;
+      }
+      .brand{
+        display:flex; flex-direction:column; gap:4px;
+      }
+      .brand strong{font-size:18px; letter-spacing:.2px}
+      .brand span{color:var(--muted); font-size:13px}
+      nav{
+        display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end;
+        font-size:14px;
+      }
+      nav a{padding:6px 10px; border-radius:10px; border:1px solid transparent}
+      nav a:hover{border-color:var(--border); text-decoration:none; background:rgba(255,255,255,.03)}
+      main{padding-top:6px}
+
+      .hero{
+        padding:26px 0 12px;
+      }
+      .kicker{
+        color:var(--muted);
+        font-size:14px;
+        letter-spacing:.12em;
+        text-transform:uppercase;
+      }
+      h1{
+        margin:10px 0 10px;
+        font-size: clamp(34px, 5vw, 56px);
+        line-height:1.08;
+        letter-spacing:-.02em;
+      }
+      .sub{
+        margin:0;
+        color:var(--muted);
+        font-size: clamp(16px, 2vw, 18px);
+        max-width: 70ch;
+      }
+
+      .grid{
+        margin-top:22px;
+        display:grid;
+        grid-template-columns: 1.2fr .8fr;
+        gap:18px;
+      }
+
+      .card{
+        background: rgba(15,17,23,.72);
+        border:1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding:18px 18px 16px;
+        backdrop-filter: blur(8px);
+      }
+
+      .card h2{
+        margin:0 0 10px;
+        font-size:16px;
+        letter-spacing:.01em;
+      }
+
+      .bullets{
+        margin:0; padding-left:18px; color:var(--muted);
+      }
+      .bullets li{margin:8px 0}
+
+      .now{
+        display:grid; gap:10px;
+        margin:0;
+        color:var(--muted);
+      }
+      .now .row{
+        display:flex; gap:10px; align-items:flex-start;
+        border-top:1px dashed rgba(233,238,247,.12);
+        padding-top:10px;
+      }
+      .now .row:first-child{border-top:0; padding-top:0}
+      .tag{
+        flex:0 0 auto;
+        font-size:12px;
+        letter-spacing:.08em;
+        text-transform:uppercase;
+        color:rgba(233,238,247,.85);
+        border:1px solid var(--border);
+        border-radius:999px;
+        padding:4px 10px;
+        background:rgba(255,255,255,.03);
+      }
+      .val{margin:0}
+
+      .links{
+        display:flex; flex-wrap:wrap; gap:10px;
+        margin-top:12px;
+      }
+      .btn{
+        display:inline-flex; align-items:center; justify-content:center;
+        padding:10px 12px;
+        border-radius:12px;
+        border:1px solid var(--border);
+        background:rgba(255,255,255,.04);
+        font-size:14px;
+        text-decoration:none;
+      }
+      .btn:hover{background:rgba(255,255,255,.06); text-decoration:none}
+      .btn.primary{
+        background:rgba(110,168,254,.16);
+        border-color:rgba(110,168,254,.35);
+      }
+      .btn.primary:hover{background:rgba(110,168,254,.22)}
+
+      footer{
+        margin-top:26px;
+        color:var(--muted);
+        font-size:13px;
+        display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+        padding-top:16px;
+        border-top:1px solid rgba(233,238,247,.10);
+      }
+      .quote{font-style:italic}
+
+      @media (max-width: 860px){
+        .grid{grid-template-columns:1fr}
+        nav{justify-content:flex-start}
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <strong>Human in Beta</strong>
+          <span>Personal identity • Home lab mindset • Iteration over perfection</span>
+        </div>
+        <nav aria-label="Primary">
+          <a href="#about">About</a>
+          <a href="#now">Now</a>
+          <a href="#notes">Notes</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero" id="top">
+          <div class="kicker">still learning • still building</div>
+          <h1>I’m human, and I’m still in beta.</h1>
+          <p class="sub">
+            This is a small, steady space to document how I think, build, and improve—one iteration at a time.
+            No hype. No finished version. Just the work.
+          </p>
+
+          <div class="links" role="list">
+            <a class="btn primary" href="#now" role="listitem">What I’m doing now</a>
+            <a class="btn" href="#projects" role="listitem">See projects</a>
+            <a class="btn" href="#notes" role="listitem">Read notes</a>
+          </div>
+        </section>
+
+        <section class="grid">
+          <article class="card" id="about">
+            <h2>What this is</h2>
+            <ul class="bullets">
+              <li>A personal lab notebook for decisions, systems, and lessons learned.</li>
+              <li>A home-base for projects—some polished, some unfinished, all real.</li>
+              <li>A reminder that progress is a series of small corrections.</li>
+            </ul>
+          </article>
+
+          <aside class="card" id="now">
+            <h2>In beta right now</h2>
+            <div class="now">
+              <div class="row">
+                <div class="tag">Learning</div>
+                <p class="val">Home lab fundamentals, reliability habits, and better documentation.</p>
+              </div>
+              <div class="row">
+                <div class="tag">Building</div>
+                <p class="val">Small tools and workflows that reduce friction and increase clarity.</p>
+              </div>
+              <div class="row">
+                <div class="tag">Improving</div>
+                <p class="val">Consistency: fewer big resets, more small, daily adjustments.</p>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="grid" style="margin-top:18px;">
+          <article class="card" id="notes">
+            <h2>Notes</h2>
+            <ul class="bullets">
+              <li><a href="#">On building systems that don’t depend on motivation</a> <span style="color:var(--muted);">— coming soon</span></li>
+              <li><a href="#">A home lab is a mindset, not a rack</a> <span style="color:var(--muted);">— coming soon</span></li>
+              <li><a href="#">What I changed when “busy” stopped being an excuse</a> <span style="color:var(--muted);">— coming soon</span></li>
+            </ul>
+          </article>
+
+          <article class="card" id="projects">
+            <h2>Projects</h2>
+            <ul class="bullets">
+              <li><a href="#">Home Lab</a> <span style="color:var(--muted);">— infrastructure, services, backups</span></li>
+              <li><a href="#">Tools</a> <span style="color:var(--muted);">— scripts, small utilities, quality-of-life</span></li>
+              <li><a href="#">Work</a> <span style="color:var(--muted);">— selected technical writing & builds</span></li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="card" id="contact" style="margin-top:18px;">
+          <h2>Contact</h2>
+          <p style="margin:0; color:var(--muted);">
+            If you want to reach me, email:
+            <a href="mailto:hello@humaninbeta.com">hello@humaninbeta.com</a>
+            <span style="color:var(--muted);"> (update as needed)</span>
+          </p>
+        </section>
+
+        <footer>
+          <div class="quote">“Nothing here is final.”</div>
+          <div>© <span id="year"></span> Human in Beta</div>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      // tiny convenience: keep footer year current
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
