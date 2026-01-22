@@ -5,160 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="description" content="Human in Beta — a personal lab for thinking, building, and improving over time." />
     <title>Human in Beta</title>
-
-    <style>
-      :root{
-        --bg:#0b0c10;
-        --panel:#0f1117;
-        --text:#e9eef7;
-        --muted:#a8b3c7;
-        --border:rgba(233,238,247,.12);
-        --link:#e9eef7;
-        --shadow: 0 10px 30px rgba(0,0,0,.35);
-        --radius: 16px;
-        --max: 980px;
-      }
-
-      *{box-sizing:border-box}
-      html,body{height:100%}
-      body{
-        margin:0;
-        font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-        color:var(--text);
-        background: radial-gradient(1200px 700px at 20% 10%, rgba(110,168,254,.18), transparent 60%),
-                    radial-gradient(1000px 600px at 90% 20%, rgba(167,139,250,.16), transparent 55%),
-                    var(--bg);
-      }
-
-      a{color:var(--link); text-decoration:none}
-      a:hover{text-decoration:underline}
-      .wrap{max-width:var(--max); margin:0 auto; padding:28px 20px 60px}
-      header{
-        display:flex; align-items:center; justify-content:space-between;
-        gap:16px;
-        padding:10px 0 24px;
-      }
-      .brand{
-        display:flex; flex-direction:column; gap:4px;
-      }
-      .brand strong{font-size:18px; letter-spacing:.2px}
-      .brand span{color:var(--muted); font-size:13px}
-      nav{
-        display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end;
-        font-size:14px;
-      }
-      nav a{padding:6px 10px; border-radius:10px; border:1px solid transparent}
-      nav a:hover{border-color:var(--border); text-decoration:none; background:rgba(255,255,255,.03)}
-      main{padding-top:6px}
-
-      .hero{
-        padding:26px 0 12px;
-      }
-      .kicker{
-        color:var(--muted);
-        font-size:14px;
-        letter-spacing:.12em;
-        text-transform:uppercase;
-      }
-      h1{
-        margin:10px 0 10px;
-        font-size: clamp(34px, 5vw, 56px);
-        line-height:1.08;
-        letter-spacing:-.02em;
-      }
-      .sub{
-        margin:0;
-        color:var(--muted);
-        font-size: clamp(16px, 2vw, 18px);
-        max-width: 70ch;
-      }
-
-      .grid{
-        margin-top:22px;
-        display:grid;
-        grid-template-columns: 1.2fr .8fr;
-        gap:18px;
-      }
-
-      .card{
-        background: rgba(15,17,23,.72);
-        border:1px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding:18px 18px 16px;
-        backdrop-filter: blur(8px);
-      }
-
-      .card h2{
-        margin:0 0 10px;
-        font-size:16px;
-        letter-spacing:.01em;
-      }
-
-      .bullets{
-        margin:0; padding-left:18px; color:var(--muted);
-      }
-      .bullets li{margin:8px 0}
-
-      .now{
-        display:grid; gap:10px;
-        margin:0;
-        color:var(--muted);
-      }
-      .now .row{
-        display:flex; gap:10px; align-items:flex-start;
-        border-top:1px dashed rgba(233,238,247,.12);
-        padding-top:10px;
-      }
-      .now .row:first-child{border-top:0; padding-top:0}
-      .tag{
-        flex:0 0 auto;
-        font-size:12px;
-        letter-spacing:.08em;
-        text-transform:uppercase;
-        color:rgba(233,238,247,.85);
-        border:1px solid var(--border);
-        border-radius:999px;
-        padding:4px 10px;
-        background:rgba(255,255,255,.03);
-      }
-      .val{margin:0}
-
-      .links{
-        display:flex; flex-wrap:wrap; gap:10px;
-        margin-top:12px;
-      }
-      .btn{
-        display:inline-flex; align-items:center; justify-content:center;
-        padding:10px 12px;
-        border-radius:12px;
-        border:1px solid var(--border);
-        background:rgba(255,255,255,.04);
-        font-size:14px;
-        text-decoration:none;
-      }
-      .btn:hover{background:rgba(255,255,255,.06); text-decoration:none}
-      .btn.primary{
-        background:rgba(110,168,254,.16);
-        border-color:rgba(110,168,254,.35);
-      }
-      .btn.primary:hover{background:rgba(110,168,254,.22)}
-
-      footer{
-        margin-top:26px;
-        color:var(--muted);
-        font-size:13px;
-        display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
-        padding-top:16px;
-        border-top:1px solid rgba(233,238,247,.10);
-      }
-      .quote{font-style:italic}
-
-      @media (max-width: 860px){
-        .grid{grid-template-columns:1fr}
-        nav{justify-content:flex-start}
-      }
-    </style>
+    <link rel="styleheet" href="styles.css">
   </head>
 
   <body>
@@ -173,7 +20,7 @@
           <a href="#now">Now</a>
           <a href="#notes">Notes</a>
           <a href="#projects">Projects</a>
-          <a href="#links">Links</a>a>
+          <a href="#links">Links</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -247,36 +94,24 @@
           <h2>Links</h2>
           <ul class="bullets">
             <li>
-              <a href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener">
-                GitHub
-              </a>
-              <span style="color:var(--muted);">
-                — code, experiments, and works in progress
-              </span>
+              <a href="https://booklore.humaninbeta.com" target="_blank" rel="noopener">Books</a>
+              <span style="color:var(--muted);">— a personal catalog of books I own</span>
             </li>
             <li>
-              <a href="#" target="_blank" rel="noopener">
-                Home Lab Docs
-              </a>
-              <span style="color:var(--muted);">
-                — notes, diagrams, and configuration history
-              </span>
+              <a href="https://plex.humaninbeta.com/" target="_blank" rel="noopener">Plex</a>
+              <span style="color:var(--muted);">— a self-hosted media library</span>
             </li>
             <li>
-              <a href="#" target="_blank" rel="noopener">
-                Writing / Notes
-              </a>
-              <span style="color:var(--muted);">
-                — short essays and observations
-              </span>
+              <a href="http://analytics.plex.humaninbeta.com" target="_blank" rel="noopener">Plex Analytics</a>
+              <span style="color:var(--muted);">— monitoring and analytics for my Plex server</span>
             </li>
             <li>
-              <a href="#" target="_blank" rel="noopener">
-                Elsewhere
-              </a>
-              <span style="color:var(--muted);">
-                — selected external profiles
-              </span>
+              <a href="http://movies.plex.humaninbeta.com" target="_blank" rel="noopener">Plex Movie Scheduler</a>
+              <span style="color:var(--muted);">— automated movie management</span>
+            </li>
+            <li>
+              <a href="http://shows.plex.humaninbeta.com" target="_blank" rel="noopener">Plex Show Scheduler</a>
+              <span style="color:var(--muted);">— automated TV series management</span>
             </li>
           </ul>
         </section>
