@@ -196,13 +196,13 @@ function renderLogo() {
   const bandBot = Math.floor(cssH * 0.56);
 
   for (let y = bandTop; y < bandBot; y += 2) {
-    if (rand() < 0.22) continue; // leave gaps
+    if (rand() < 0.10) continue; // leave gaps
 
     const yNorm = y / cssH;
     const thickness = rand() < 0.60 ? 1 : 2;
 
     // multiple segments per row
-    const segs = 5 + randi(0, 7);
+    const segs = 8 + randi(0, 10);
 
     for (let s = 0; s < segs; s++) {
       // bias segments to edges more often
@@ -251,7 +251,7 @@ function renderLogo() {
     const x = dripCandidates.length ? dripCandidates[randi(0, dripCandidates.length - 1)] : randi(0, cssW - 1);
 
     const yStart = Math.floor(cssH * (0.44 + rand() * 0.20));
-    const len = Math.floor(cssH * (0.12 + rand() * 0.26));
+    const len = Math.floor(cssH * (0.20 + rand() * 0.35));
 
     let col = baseColorAtX(x);
     const a = 0.14 + rand() * 0.24;
