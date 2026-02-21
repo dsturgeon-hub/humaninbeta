@@ -162,7 +162,10 @@ body{
   place-items: start;
   margin: 2px 0 6px;
 }
-
+#logo, .logo-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 .logo-canvas{
   width: min(100%, 980px);
   height: auto;
