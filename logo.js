@@ -46,7 +46,7 @@ function renderLogo() {
 
   // ---- Tile size: smaller = closer to reference mosaic ----
   // Your screenshot looks ~4–5px “cells” at this logo width.
-  const tile = clamp(Math.round(cssW / 240), 3, 6); // 3–6px
+  const tile = clamp(Math.round(cssW / 320), 3, 4); // 3–6px
   const cols = Math.floor(cssW / tile);
   const rows = Math.floor(cssH / tile);
 
@@ -129,7 +129,7 @@ function renderLogo() {
       const v = y / cssH;
 
       // subtle hole chance; more at edges + slightly more lower half
-      const base = 0.012 + ew * 0.055 + Math.max(0, v - 0.55) * 0.03;
+      const base = 0.012 + ew * 0.012 + Math.max(0, v - 0.55) * 0.03;
 
       // clustered holes sometimes (2x2)
       if (rand() < base * 0.35) {
@@ -159,7 +159,7 @@ function renderLogo() {
       const base = baseColorAtX(x);
 
       // brightness variance like reference
-      const n = (rand() - 0.5) * 0.34; // +/- 17%
+      const n = (rand() - 0.5) * 0.48;
       const bright = 1 + n;
 
       // speckle: occasional dim/hot tiles
