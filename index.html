@@ -1,139 +1,48 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="description" content="Human in Beta — a personal lab for thinking, building, and improving over time." />
-    <title>Human in Beta</title>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-
-  <body>
-    <div class="wrap">
-      <header>
-        <div class="brand">
-          <strong>Human in Beta</strong>
-          <span>Personal identity • Home lab mindset • Iteration over perfection</span>
-        </div>
-        <nav aria-label="Primary">
-          <a href="#about">About</a>
-          <a href="#now">Now</a>
-          <a href="#notes">Notes</a>
-          <a href="#projects">Projects</a>
-          <a href="#links">Links</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </header>
-
-      <main>
-        <section class="hero" id="top">
-          <div class="kicker">still learning • still building</div>
-          <h1>I’m human, and I’m still in beta.</h1>
-          <p class="sub">
-            This is a small, steady space to document how I think, build, and improve—one iteration at a time.
-            No hype. No finished version. Just the work.
-          </p>
-
-          <div class="links" role="list">
-            <a class="btn primary" href="#now" role="listitem">What I’m doing now</a>
-            <a class="btn" href="#projects" role="listitem">See projects</a>
-            <a class="btn" href="#notes" role="listitem">Read notes</a>
-          </div>
-        </section>
-
-        <section class="grid">
-          <article class="card" id="about">
-            <h2>What this is</h2>
-            <ul class="bullets">
-              <li>A personal lab notebook for decisions, systems, and lessons learned.</li>
-              <li>A home-base for projects—some polished, some unfinished, all real.</li>
-              <li>A reminder that progress is a series of small corrections.</li>
-            </ul>
-          </article>
-
-          <aside class="card" id="now">
-            <h2>In beta right now</h2>
-            <div class="now">
-              <div class="row">
-                <div class="tag">Learning</div>
-                <p class="val">Home lab fundamentals, reliability habits, and better documentation.</p>
-              </div>
-              <div class="row">
-                <div class="tag">Building</div>
-                <p class="val">Small tools and workflows that reduce friction and increase clarity.</p>
-              </div>
-              <div class="row">
-                <div class="tag">Improving</div>
-                <p class="val">Consistency: fewer big resets, more small, daily adjustments.</p>
-              </div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>HUMAN IN BETA — The Beta Node</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="stage" aria-label="Renegade-style BBS">
+    <section class="bezel">
+      <div class="crt" role="application" aria-label="BBS Terminal">
+        <div class="glass">
+          <header class="top">
+            <!-- Logo is CSS-driven for the effects -->
+            <div class="logo-wrap">
+              <div class="logo-glitch shatter" data-text="HUMAN IN BETA">HUMAN IN BETA</div>
+              <div class="tagline y">── THE BETA NODE ──</div>
             </div>
-          </aside>
-        </section>
 
-        <section class="grid" style="margin-top:18px;">
-          <article class="card" id="notes">
-            <h2>Notes</h2>
-            <ul class="bullets">
-              <li><a href="#">On building systems that don’t depend on motivation</a> <span style="color:var(--muted);">— coming soon</span></li>
-              <li><a href="#">A home lab is a mindset, not a rack</a> <span style="color:var(--muted);">— coming soon</span></li>
-              <li><a href="#">What I changed when “busy” stopped being an excuse</a> <span style="color:var(--muted);">— coming soon</span></li>
-            </ul>
-          </article>
+            <div class="headerline">
+              <span class="bracket y">[THE BETA NODE]</span>
+              <span class="rule dim">──────────────────────────────────────────────</span>
+              <span class="right c">Node 1&nbsp;&nbsp;2400 Baud</span>
+            </div>
+          </header>
 
-          <article class="card" id="projects">
-            <h2>Projects</h2>
-            <ul class="bullets">
-              <li><a href="#">Home Lab</a> <span style="color:var(--muted);">— infrastructure, services, backups</span></li>
-              <li><a href="#">Tools</a> <span style="color:var(--muted);">— scripts, small utilities, quality-of-life</span></li>
-              <li><a href="#">Work</a> <span style="color:var(--muted);">— selected technical writing & builds</span></li>
-            </ul>
-          </article>
-        </section>
+          <!-- Fixed-height terminal viewport (never grows). JS writes lines here. -->
+          <section class="term" aria-label="Terminal output">
+            <pre id="term" class="term-pre" aria-live="polite"></pre>
+          </section>
 
-        <section class="card" id="links" style="margin-top:18px;">
-          <h2>Links</h2>
-          <ul class="bullets">
-            <li>
-              <a href="#" target="_blank" rel="noopener">Books</a>
-              <span style="color:var(--muted);">— a personal catalog of books I own</span>
-            </li>
-            <li>
-              <a href="#" target="_blank" rel="noopener">Plex</a>
-              <span style="color:var(--muted);">— a self-hosted media library</span>
-            </li>
-            <li>
-              <a href="#" target="_blank" rel="noopener">Plex Analytics</a>
-              <span style="color:var(--muted);">— monitoring and analytics for my Plex server</span>
-            </li>
-            <li>
-              <a href="#" target="_blank" rel="noopener">Plex Movie Scheduler</a>
-              <span style="color:var(--muted);">— automated movie management</span>
-            </li>
-            <li>
-              <a href="#" target="_blank" rel="noopener">Plex Show Scheduler</a>
-              <span style="color:var(--muted);">— automated TV series management</span>
-            </li>
-          </ul>
-        </section>
-        
-        <section class="card" id="contact" style="margin-top:18px;">
-          <h2>Contact</h2>
-          <p style="margin:0; color:var(--muted);">
-            If you want to reach me, email:
-            <a href="mailto:admin@humaninbeta.com">admin@humaninbeta.com</a>
-          </p>
-        </section>
+          <footer class="promptbar" aria-label="Command prompt">
+            <div class="prompt-left">
+              <span class="c">Main Board Command?</span>
+              <span class="cursor y" aria-hidden="true">_</span>
+            </div>
 
-        <footer>
-          <div class="quote">“Nothing here is final.”</div>
-          <div>© <span id="year"></span> Human in Beta</div>
-        </footer>
-      </main>
-    </div>
-
-    <script>
-      // tiny convenience: keep footer year current
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
-  </body>
+            <!-- Hidden input captures typing; prompt rendering stays fixed -->
+            <input id="kbd" class="kbd" autocomplete="off" spellcheck="false" inputmode="text" />
+          </footer>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
 </html>
