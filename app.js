@@ -160,5 +160,4 @@ kbdEl.addEventListener("keydown", async (e) => {
 });
 
 // Start
-renderLogo();
 boot();
