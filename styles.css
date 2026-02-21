@@ -157,6 +157,26 @@ body{
   white-space: nowrap;
 }
 
+.logo-panel{
+  width: 100%;
+  display: grid;
+  place-items: start;
+  margin: 2px 0 6px;
+}
+
+.logo-canvas{
+  width: min(100%, 980px);
+  height: auto;
+  image-rendering: pixelated;          /* important: keeps the “cell” look crisp */
+  image-rendering: crisp-edges;
+  filter:
+    saturate(1.15)
+    contrast(1.10)
+    brightness(1.02)
+    drop-shadow(0 0 12px rgba(0,255,140,.18))
+    drop-shadow(0 0 22px rgba(80,255,200,.10));
+}
+
 .bracket{
   font-weight: 800;
   letter-spacing: .08ch;
