@@ -2,6 +2,7 @@ function renderLogo() {
   const canvas = document.getElementById("logo");
   if (!canvas) return;
 
+  
   const ctx = canvas.getContext("2d");
 
   // Make canvas resolution match CSS size for sharpness (but still pixelated).
