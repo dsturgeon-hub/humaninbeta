@@ -1,10 +1,8 @@
-// Renegade-style flowing terminal that never scrolls the browser.
-// We keep a fixed line buffer sized to the visible terminal viewport.
+// app.js — fixed-height “flowing” terminal (ring buffer), never scrolls the browser.
 
 const termEl = document.getElementById("term");
 const kbdEl  = document.getElementById("kbd");
 
-// ANSI-ish color helpers (simple, no escape codes)
 const C = {
   g: (s) => `<span class="g">${s}</span>`,
   c: (s) => `<span class="c">${s}</span>`,
@@ -12,51 +10,41 @@ const C = {
   d: (s) => `<span class="dim">${s}</span>`,
 };
 
-// Internal ring buffer of HTML lines
 let lines = [];
-let maxLines = 18; // will be recalculated based on viewport
+let maxLines = 18;
 
-function measureMaxLines() {
-  // Compute how many lines fit in the terminal area.
-  // Avoid code that changes layout height: we only set buffer length.
+function measureMaxLines(){
   const termBox = termEl.parentElement.getBoundingClientRect();
-  const style = getComputedStyle(termEl);
-  const lineHeight = parseFloat(style.lineHeight || "18");
-  const paddingTop = parseFloat(getComputedStyle(termEl.parentElement).paddingTop || "0");
-  const paddingBottom = parseFloat(getComputedStyle(termEl.parentElement).paddingBottom || "0");
-  const usable = termBox.height - paddingTop - paddingBottom;
-  const n = Math.max(10, Math.floor(usable / lineHeight) - 1); // keep breathing room
-  maxLines = n;
+  const preStyle = getComputedStyle(termEl);
+  const lineHeight = parseFloat(preStyle.lineHeight || "18");
+  const padTop = parseFloat(getComputedStyle(termEl.parentElement).paddingTop || "0");
+  const padBot = parseFloat(getComputedStyle(termEl.parentElement).paddingBottom || "0");
+  const usable = termBox.height - padTop - padBot;
+  maxLines = Math.max(10, Math.floor(usable / lineHeight) - 1);
 }
-window.addEventListener("resize", () => {
-  measureMaxLines();
-  render();
-});
 
-function render() {
-  // Ensure we never grow beyond maxLines
+function render(){
   if (lines.length > maxLines) lines = lines.slice(lines.length - maxLines);
   termEl.innerHTML = lines.join("\n");
 }
 
-// Add one line (HTML)
-function println(html) {
+function println(html){
   lines.push(html);
   if (lines.length > maxLines) lines.shift();
   render();
 }
 
-// Burst-print multiple lines with a delay for “flow”
-async function burst(outputLines, ms = 35) {
-  for (const l of outputLines) {
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function burst(out, ms=20){
+  for (const l of out){
     println(l);
     // eslint-disable-next-line no-await-in-loop
-    await new Promise(r => setTimeout(r, ms));
+    await sleep(ms);
   }
 }
 
-// Screens
-function mainMenuLines() {
+function mainMenuLines(){
   return [
     `${C.c("Status:")}     ${C.y("BETA")}`,
     `${C.c("Stability:")}  ${C.y("UNKNOWN")}`,
@@ -72,58 +60,37 @@ function mainMenuLines() {
   ];
 }
 
-async function boot() {
-  measureMaxLines();
-  render();
-
-  await burst([
-    `${C.c("CONNECT")} ${C.d("…")} ${C.y("2400")} ${C.d("bps")}`,
-    `${C.c("HANDSHAKE")} ${C.d("…")} ${C.y("OK")}`,
-    `${C.c("NEGOTIATE")} ${C.d("ANSI")} ${C.y("ON")}`,
-    "",
-    `${C.y("Welcome to")} ${C.c("HUMAN IN BETA")} ${C.d("— experimental systems online.")}`,
-    `${C.d("Tip:")} ${C.y("H")} ${C.d("for help,")} ${C.y("1-5")} ${C.d("for menu.")}`,
-    "",
-  ], 40);
-
-  await burst(mainMenuLines(), 18);
-
-  kbdEl.focus();
-}
-
-function clearScreen() {
-  lines = [];
-  render();
-}
-
-async function showHelp() {
+async function showHelp(){
   await burst([
     `${C.g("──────────────────────────────────────────────────────────────────────────────")}`,
     `${C.y("HELP")} ${C.d(":: Commands")}`,
-    `${C.c("1-5")} ${C.d(" open menu items")}`,
-    `${C.c("H")}   ${C.d(" help")}`,
-    `${C.c("CLEAR")} ${C.d(" clear terminal window")}`,
-    `${C.c("Q")}   ${C.d(" disconnect")}`,
+    `${C.c("1-5")}   ${C.d("open menu items")}`,
+    `${C.c("H")}     ${C.d("help")}`,
+    `${C.c("CLEAR")} ${C.d("clear terminal")}`,
+    `${C.c("Q")}     ${C.d("disconnect")}`,
     `${C.g("──────────────────────────────────────────────────────────────────────────────")}`,
   ], 12);
 }
 
-async function openSection(name) {
+async function openSection(name){
   await burst([
     `${C.g("──────────────────────────────────────────────────────────────────────────────")}`,
     `${C.c("Entering:")} ${C.y(name)} ${C.d("…")}`,
     `${C.d("Loading modules")} ${C.d("…")} ${C.y("OK")}`,
     `${C.d("Note:")} ${C.y("stub")} ${C.d("(add real content later)")}`,
     `${C.g("──────────────────────────────────────────────────────────────────────────────")}`,
-  ], 18);
+  ], 16);
 }
 
-// Command handling
-async function handle(cmdRaw) {
+function clearScreen(){
+  lines = [];
+  render();
+}
+
+async function handle(cmdRaw){
   const cmd = cmdRaw.trim().toUpperCase();
   if (!cmd) return;
 
-  // Echo the command like a BBS would
   println(`${C.c(">")} ${C.y(cmd)}`);
 
   if (cmd === "H" || cmd === "HELP" || cmd === "?") return showHelp();
@@ -139,11 +106,36 @@ async function handle(cmdRaw) {
   if (cmd === "4") return openSection("DOOR GAMES :: SIMULATIONS");
   if (cmd === "5") return openSection("BULLETINS :: CHANGELOG");
 
-  // unknown
   await burst([`${C.y("Unknown command.")} ${C.d("Type")} ${C.y("H")} ${C.d("for help.")}`], 18);
 }
 
-// Keyboard capture
+async function boot(){
+  measureMaxLines();
+  render();
+
+  // ensure logo render (logo.js defines window.renderLogo)
+  if (typeof window.renderLogo === "function") window.renderLogo();
+
+  await burst([
+    `${C.c("CONNECT")} ${C.d("…")} ${C.y("2400")} ${C.d("bps")}`,
+    `${C.c("HANDSHAKE")} ${C.d("…")} ${C.y("OK")}`,
+    `${C.c("NEGOTIATE")} ${C.d("ANSI")} ${C.y("ON")}`,
+    "",
+    `${C.y("Welcome to")} ${C.c("HUMAN IN BETA")} ${C.d("— experimental systems online.")}`,
+    `${C.d("Tip:")} ${C.y("H")} ${C.d("for help,")} ${C.y("1-5")} ${C.d("for menu.")}`,
+    "",
+  ], 35);
+
+  await burst(mainMenuLines(), 12);
+  kbdEl.focus();
+}
+
+window.addEventListener("resize", () => {
+  measureMaxLines();
+  render();
+  if (typeof window.renderLogo === "function") window.renderLogo();
+});
+
 document.addEventListener("pointerdown", () => kbdEl.focus());
 
 kbdEl.addEventListener("keydown", async (e) => {
@@ -153,11 +145,9 @@ kbdEl.addEventListener("keydown", async (e) => {
     await handle(val);
   } else if (e.key === "Escape") {
     kbdEl.value = "";
-    // quick “return to main” feel: clear + redraw menu
     clearScreen();
     await burst(mainMenuLines(), 10);
   }
 });
 
-// Start
 boot();
