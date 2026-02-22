@@ -136,42 +136,43 @@ window.addEventListener("resize", () => {
   if (typeof window.renderLogo === "function") window.renderLogo();
 });
 
-document.addEventListener("pointerdown", () => kbdEl.focus());
+function focusKbd(){
+  if (document.activeElement !== kbdEl) {
+    kbdEl.focus();
+  }
+}
 
+// Always focus when clicking anywhere
+document.addEventListener("pointerdown", focusKbd);
+
+// Capture Enter reliably
 kbdEl.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
+    e.preventDefault();   // critical
     const val = kbdEl.value;
     kbdEl.value = "";
     await handle(val);
-  } else if (e.key === "Escape") {
+  }
+  if (e.key === "Escape") {
+    e.preventDefault();
     kbdEl.value = "";
     clearScreen();
     await burst(mainMenuLines(), 10);
   }
 });
 
-function focusKbd(){
-  // Defer helps Safari/iOS reliably apply focus
-  setTimeout(() => kbdEl.focus(), 0);
-}
-
-// Keep focus on any interaction
-document.addEventListener("pointerdown", focusKbd);
-document.addEventListener("touchstart", focusKbd, { passive: true });
-
-// Global key trap: if user types anywhere, force focus to #kbd
+// Global key capture (prevents lost first character)
 window.addEventListener("keydown", (e) => {
-  // Let browser shortcuts through
   if (e.metaKey || e.ctrlKey || e.altKey) return;
 
-  // If focus is already in #kbd, do nothing
-  if (document.activeElement === kbdEl) return;
-
-  // If focus is in another input/textarea, don’t steal it
-  const t = e.target;
-  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-
-  focusKbd();
+  if (document.activeElement !== kbdEl) {
+    e.preventDefault();
+    focusKbd();
+    // forward the key into the input
+    if (e.key.length === 1) {
+      kbdEl.value += e.key;
+    }
+  }
 });
 
 boot();
