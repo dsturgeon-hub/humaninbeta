@@ -11,28 +11,20 @@
     <section class="bezel">
       <div class="crt" role="application" aria-label="BBS Terminal">
         <div class="glass">
+
           <header class="top">
-            <!-- Logo is CSS-driven for the effects -->
-            <!-- <div class="logo-wrap">
-              <div class="logo-glitch shatter" data-text="HUMAN IN BETA">HUMAN IN BETA</div>
-              <div class="tagline y">── THE BETA NODE ──</div>
-            </div> -->
-            <!-- <div class="logo-ref" aria-label="HUMAN IN BETA logo">
-              <div class="streaks" aria-hidden="true"></div>
-              <div class="text" data-text="HUMAN IN BETA">HUMAN IN BETA</div>
-            </div> -->
-            <!-- Logo (procedural pixel/cell render) -->
-            <div class="logo-panel" aria-label="HUMAN IN BETA logo">
-              <canvas id="logo" class="logo-canvas" width="1200" height="220"></canvas>
+            <!-- Responsive logo canvas -->
+            <div class="logo-panel" aria-label="HUMAN IN BETA Logo">
+              <canvas id="logo" class="logo-canvas" aria-hidden="true"></canvas>
             </div>
+
             <div class="headerline">
               <span class="bracket y">[THE BETA NODE]</span>
-              <span class="rule dim">──────────────────────────────────────────────</span>
+              <span class="rule dim">────────────────────────────────────────────────────────────────</span>
               <span class="right c">Node 1&nbsp;&nbsp;2400 Baud</span>
             </div>
           </header>
 
-          <!-- Fixed-height terminal viewport (never grows). JS writes lines here. -->
           <section class="term" aria-label="Terminal output">
             <pre id="term" class="term-pre" aria-live="polite"></pre>
           </section>
@@ -42,15 +34,17 @@
               <span class="c">Main Board Command?</span>
               <span class="cursor y" aria-hidden="true">_</span>
             </div>
-
-            <!-- Hidden input captures typing; prompt rendering stays fixed -->
+            <!-- hidden input captures typing -->
             <input id="kbd" class="kbd" autocomplete="off" spellcheck="false" inputmode="text" />
           </footer>
+
         </div>
       </div>
     </section>
   </main>
+
+  <!-- IMPORTANT: defer + order -->
   <script src="logo.js" defer></script>
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
