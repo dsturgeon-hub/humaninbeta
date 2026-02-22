@@ -63,8 +63,37 @@
     const fontStack = `"Arial Black", Impact, Haettenschweiler, ui-sans-serif, system-ui`;
 
     // Fit-to-width
-    const marginX = Math.floor(cssW * 0.06);
-    const maxTextW = cssW - marginX * 2;
+// Fit-to-width (SAFE AREA) to prevent right-edge cutoff.
+// The reference logo has a lot of streak/drip overhang, but the *text* must stay inside.
+const safePad = Math.max(28, Math.floor(cssW * 0.08)); // bigger than before
+const maxTextW = cssW - safePad * 2;
+
+const maxTextH = Math.floor(cssH * 0.62);
+const yMid = Math.floor(cssH * 0.34);
+
+let fontPx = Math.floor(cssH * 0.70);
+octx.font = `900 ${fontPx}px ${fontStack}`;
+
+// Measure and scale down to fit SAFE width + height
+let measured = octx.measureText(text).width;
+if (measured > 0) {
+  const scaleW = maxTextW / measured;
+  const scaleH = maxTextH / fontPx;
+  // leave extra 2% slack so the double-draw (+2px) never clips
+  const scale = Math.min(scaleW * 0.98, scaleH, 1);
+  fontPx = Math.floor(fontPx * scale);
+}
+
+// Re-apply final font and re-measure
+octx.font = `900 ${fontPx}px ${fontStack}`;
+measured = octx.measureText(text).width;
+
+// Center, but clamp so we always keep SAFE padding.
+// Also subtract a couple pixels so the +2px double-draw stays inside.
+let x0 = Math.floor((cssW - measured) / 2);
+x0 = Math.max(safePad, Math.min(x0, cssW - safePad - measured - 3));
+
+const y0 = yMid;
 
     const bandTop = Math.floor(cssH * 0.08);
     const bandBot = Math.floor(cssH * 0.56);
@@ -94,7 +123,7 @@
     octx.textAlign = "left";
     octx.fillText(text, x0, y0);
     octx.globalAlpha = 0.30;
-    octx.fillText(text, x0 + 2, y0);
+    octx.fillText(text, x0 + 1, y0);
     octx.globalAlpha = 1;
 
     const mask = octx.getImageData(0, 0, cssW, cssH).data;
