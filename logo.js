@@ -1,5 +1,5 @@
-// logo.js — responsive ANSI-mosaic logo (no cutoff, scales correctly)
-// Exposes window.renderLogo so app.js can trigger it.
+// logo.js — responsive ANSI-mosaic logo (safe fit; no right cutoff)
+// Exposes window.renderLogo
 
 (function () {
   const COL_G = [124, 255, 122];
@@ -35,21 +35,18 @@
     canvas.height = Math.floor(cssH * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    // background
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, cssW, cssH);
 
-    // stable per-size seed (so it doesn't change every minor resize)
     const seed = (cssW * 73856093) ^ (cssH * 19349663) ^ 1337;
     const rand = makeRng(seed);
     const randi = (a, b) => Math.floor(lerp(a, b + 1, rand()));
 
-    // mosaic tile size tuned for readability + “ANSI cell” look
     const tile = clamp(Math.round(cssW / 320), 3, 5);
     const cols = Math.floor(cssW / tile);
     const rows = Math.floor(cssH / tile);
 
-    // offscreen pixel mask (pixel resolution — keeps letter edges crisp)
+    // offscreen mask
     const off = document.createElement("canvas");
     off.width = cssW;
     off.height = cssH;
@@ -61,8 +58,8 @@
     const text = "HUMAN IN BETA";
     const fontStack = `"Arial Black", Impact, Haettenschweiler, ui-sans-serif, system-ui`;
 
-    // ---- Fit-to-width (SAFE AREA) to prevent right-edge cutoff ----
-    const safePad = Math.max(28, Math.floor(cssW * 0.08));
+    // SAFE AREA fit (prevents right-side cutoff even with double-draw)
+    const safePad = Math.max(34, Math.floor(cssW * 0.09));
     const maxTextW = cssW - safePad * 2;
     const maxTextH = Math.floor(cssH * 0.62);
     const yMid = Math.floor(cssH * 0.34);
@@ -71,11 +68,10 @@
     octx.font = `900 ${fontPx}px ${fontStack}`;
 
     let measured = octx.measureText(text).width;
-
     if (measured > 0) {
       const scaleW = maxTextW / measured;
       const scaleH = maxTextH / fontPx;
-      const scale = Math.min(scaleW * 0.98, scaleH, 1); // slack for double-draw
+      const scale = Math.min(scaleW * 0.97, scaleH, 1); // extra slack
       fontPx = Math.floor(fontPx * scale);
     }
 
@@ -84,14 +80,11 @@
 
     let x0 = Math.floor((cssW - measured) / 2);
     x0 = Math.max(safePad, Math.min(x0, cssW - safePad - measured - 3));
-
     const y0 = yMid;
 
-    // band region used later
     const bandTop = Math.floor(cssH * 0.08);
     const bandBot = Math.floor(cssH * 0.56);
 
-    // text paint to mask
     octx.fillStyle = "#fff";
     octx.textBaseline = "middle";
     octx.textAlign = "left";
@@ -102,7 +95,7 @@
 
     const mask = octx.getImageData(0, 0, cssW, cssH).data;
 
-    // Word segmentation boundaries (pixels)
+    // segmentation
     const wHuman = octx.measureText("HUMAN").width;
     const wSpace = octx.measureText(" ").width;
     const wIn = octx.measureText("IN").width;
@@ -124,13 +117,13 @@
     }
 
     function edgeWeight(px) {
-      const t = px / cssW; // 0..1
+      const t = px / cssW;
       const left = Math.max(0, 0.33 - t) / 0.33;
       const right = Math.max(0, t - 0.67) / 0.33;
       return clamp(left + right, 0, 1);
     }
 
-    // Precompute subtle holes (keep readability; no minecraft)
+    // holes
     const holes = new Set();
     for (let r = 0; r < rows; r++) {
       const y = r * tile + (tile >> 1);
@@ -147,14 +140,14 @@
         const base = 0.010 + ew * 0.06 + Math.max(0, v - 0.55) * 0.03;
 
         if (rand() < base * 0.28) {
-          for (let rr = 0; rr < 2; rr++) for (let cc = 0; cc < 2; cc++) holes.add(`${c + cc},${r + rr}`);
+          for (let rr = 0; rr < 2; rr++) for (let cc = 0; cc < 2; cc++) holes.add(`${c+cc},${r+rr}`);
         } else if (rand() < base * 0.18) {
           holes.add(`${c},${r}`);
         }
       }
     }
 
-    // Draw mosaic tiles (sample mask at tile centers)
+    // tiles
     for (let r = 0; r < rows; r++) {
       const y = r * tile + (tile >> 1);
       for (let c = 0; c < cols; c++) {
@@ -179,7 +172,6 @@
         ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
         ctx.fillRect(c * tile, r * tile, tile, tile);
 
-        // micro “glyph” texture
         if (rand() < 0.78) {
           const count = rand() < 0.35 ? 2 : 1;
           for (let k = 0; k < count; k++) {
@@ -193,7 +185,7 @@
       }
     }
 
-    // Dense streak bands (across top half of logo area)
+    // streaks
     for (let y = bandTop; y < bandBot; y += 2) {
       if (rand() < 0.14) continue;
 
@@ -214,17 +206,17 @@
         if (rand() < 0.18) col = mix(col, [255, 255, 255], 0.14);
 
         const a = clamp((0.08 + rand() * 0.18) * (1.1 - Math.abs((y / cssH) - 0.30)), 0.05, 0.22);
-        ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a})`;
+        ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
         ctx.fillRect(xStart, y, len, thickness);
 
         if (rand() < 0.42) {
-          ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a * 0.55})`;
+          ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a * 0.55})`;
           ctx.fillRect(xStart + randi(-10, 10), y + thickness + 1, len - randi(0, 80), 1);
         }
       }
     }
 
-    // Drips biased to originate from strokes (probe under letter band)
+    // drips
     const candidates = [];
     const probeY = Math.floor(cssH * 0.48);
     for (let i = 0; i < 220; i++) {
@@ -247,12 +239,12 @@
         if (rand() < 0.16) continue;
         const yy = yStart + k;
         if (yy >= cssH) break;
-        ctx.fillStyle = `rgba(${col[0] | 0},${col[1] | 0},${col[2] | 0},${a})`;
+        ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
         ctx.fillRect(x, yy, w, 1);
       }
     }
 
-    // Fine grain
+    // grain
     const pts = Math.floor((cssW * cssH) / 2600);
     for (let i = 0; i < pts; i++) {
       const x = Math.floor(rand() * cssW);
