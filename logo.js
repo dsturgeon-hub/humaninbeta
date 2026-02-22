@@ -1,29 +1,7 @@
-// logo.js — higher-fidelity ANSI-mosaic logo renderer
-// Key changes vs your current version:
-// 1) Text mask rendered at pixel resolution (NOT tile resolution) => better letter shapes
-// 2) Smaller tiles (3–6px) => more like reference mosaic
-// 3) Hard word segmentation (HUMAN green, IN cyan, BETA yellow) with tiny bleed
-// 4) Dense streak bands across the logo band
-// 5) Drips biased to originate from filled strokes
+// logo.js — responsive ANSI-mosaic logo (no cutoff, scales correctly)
+// Exposes window.renderLogo so app.js can trigger it.
 
-function renderLogo() {
-  const canvas = document.getElementById("logo");
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-
-  // CSS size
-  const cssW = Math.min(canvas.parentElement.clientWidth, 980);
-  const cssH = Math.round(cssW * (220 / 1200));
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-
-  canvas.style.width = cssW + "px";
-  canvas.style.height = cssH + "px";
-  canvas.width = Math.round(cssW * dpr);
-  canvas.height = Math.round(cssH * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // Palette (same as before)
+(function () {
   const COL_G = [124, 255, 122];
   const COL_C = [100, 215, 255];
   const COL_Y = [255, 212, 104];
@@ -32,251 +10,259 @@ function renderLogo() {
   const lerp = (a, b, t) => a + (b - a) * t;
   const mix = (A, B, t) => [lerp(A[0], B[0], t), lerp(A[1], B[1], t), lerp(A[2], B[2], t)];
 
-  // Stable RNG
-  let seed = 1337;
-  const rand = () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 4294967296;
-  };
-  const randi = (a, b) => Math.floor(lerp(a, b + 1, rand()));
+  function makeRng(seed0) {
+    let seed = seed0 >>> 0;
+    return () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+  }
 
-  // Clear
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, cssW, cssH);
+  function renderLogo() {
+    const canvas = document.getElementById("logo");
+    if (!canvas) return;
 
-  // ---- Tile size: smaller = closer to reference mosaic ----
-  // Your screenshot looks ~4–5px “cells” at this logo width.
-  const tile = clamp(Math.round(cssW / 320), 3, 4); // 3–6px
-  const cols = Math.floor(cssW / tile);
-  const rows = Math.floor(cssH / tile);
+    const parent = canvas.parentElement;
+    const ctx = canvas.getContext("2d");
 
-  // ---- Offscreen mask at PIXEL resolution (critical) ----
-  const off = document.createElement("canvas");
-  off.width = cssW;
-  off.height = cssH;
-  const octx = off.getContext("2d");
+    const cssW = Math.max(320, Math.floor(parent.clientWidth));
+    const cssH = Math.max(90, Math.floor(cssW * (220 / 1200)));
 
-  octx.clearRect(0, 0, cssW, cssH);
-  octx.fillStyle = "#000";
-  octx.fillRect(0, 0, cssW, cssH);
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
 
-  const text = "HUMAN IN BETA";
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  // Use a wider, blockier face if available; fall back safely.
-  // (This improves the letterforms vs monospace-only.)
-  const fontPx = Math.floor(cssH * 0.62);
-  octx.font = `900 ${fontPx}px "Arial Black", Impact, Haettenschweiler, ui-sans-serif, system-ui`;
-  octx.textBaseline = "middle";
-  octx.textAlign = "left";
+    // background
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, cssW, cssH);
 
-  const x0px = Math.floor(cssW * 0.055);
-  const y0px = Math.floor(cssH * 0.38);
+    // stable per-size seed (so it doesn't change every minor resize)
+    const seed = (cssW * 73856093) ^ (cssH * 19349663) ^ 1337;
+    const rand = makeRng(seed);
+    const randi = (a, b) => Math.floor(lerp(a, b + 1, rand()));
 
-  // Slight double draw for stronger strokes (like the reference)
-  octx.fillStyle = "#fff";
-  octx.fillText(text, x0px, y0px);
-  octx.globalAlpha = 0.30;
-  octx.fillText(text, x0px + 2, y0px);
-  octx.globalAlpha = 1;
+    // mosaic tile size tuned for readability + “ANSI cell” look
+    const tile = clamp(Math.round(cssW / 320), 3, 5); // smaller than before
+    const cols = Math.floor(cssW / tile);
+    const rows = Math.floor(cssH / tile);
 
-  const mask = octx.getImageData(0, 0, cssW, cssH).data;
+    // offscreen pixel mask (pixel resolution — keeps letter edges crisp)
+    const off = document.createElement("canvas");
+    off.width = cssW;
+    off.height = cssH;
+    const octx = off.getContext("2d");
 
-  // ---- Hard word segmentation boundaries (measured in pixels) ----
-  const wHuman = octx.measureText("HUMAN").width;
-  const wSpace = octx.measureText(" ").width;
-  const wIn = octx.measureText("IN").width;
+    octx.fillStyle = "#000";
+    octx.fillRect(0, 0, cssW, cssH);
 
-  const xHuman0 = x0px;
-  const xHuman1 = x0px + wHuman;
-  const xIn0 = xHuman1 + wSpace;
-  const xIn1 = xIn0 + wIn;
-  const xBeta0 = xIn1 + wSpace;
+    const text = "HUMAN IN BETA";
+    const fontStack = `"Arial Black", Impact, Haettenschweiler, ui-sans-serif, system-ui`;
 
-  const bleedPx = tile * 1.5; // tiny seam blend
+    // Fit-to-width
+    const marginX = Math.floor(cssW * 0.06);
+    const maxTextW = cssW - marginX * 2;
 
-  const baseColorAtX = (x) => {
-    if (x < xHuman1 - bleedPx) return COL_G;
-    if (x < xHuman1 + bleedPx) return mix(COL_G, COL_C, (x - (xHuman1 - bleedPx)) / (bleedPx * 2));
+    const bandTop = Math.floor(cssH * 0.08);
+    const bandBot = Math.floor(cssH * 0.56);
 
-    if (x < xIn1 - bleedPx) return COL_C;
-    if (x < xIn1 + bleedPx) return mix(COL_C, COL_Y, (x - (xIn1 - bleedPx)) / (bleedPx * 2));
+    const maxTextH = Math.floor(cssH * 0.62);
+    const yMid = Math.floor(cssH * 0.34);
 
-    return COL_Y;
-  };
+    let fontPx = Math.floor(cssH * 0.70);
+    octx.font = `900 ${fontPx}px ${fontStack}`;
+    let measured = octx.measureText(text).width;
 
-  // Edge emphasis (more shatter + more streak energy at ends)
-  const edgeWeight = (xNorm) => {
-    const left = Math.max(0, 0.32 - xNorm) / 0.32;
-    const right = Math.max(0, xNorm - 0.68) / 0.32;
-    return clamp(left + right, 0, 1);
-  };
+    if (measured > 0) {
+      const scaleW = maxTextW / measured;
+      const scaleH = maxTextH / fontPx;
+      const scale = Math.min(scaleW, scaleH, 1);
+      fontPx = Math.floor(fontPx * scale);
+    }
 
-  // ---- Draw mosaic tiles by sampling the pixel mask ----
-  // We sample the center of each tile; you can do multi-sample if you want even smoother.
-  const holes = new Set();
+    octx.font = `900 ${fontPx}px ${fontStack}`;
+    measured = octx.measureText(text).width;
 
-  // Precompute clustered holes (chunky breakups) but NOT too aggressive (reference keeps readability)
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = c * tile + (tile >> 1);
+    const x0 = Math.floor((cssW - measured) / 2);
+    const y0 = yMid;
+
+    octx.fillStyle = "#fff";
+    octx.textBaseline = "middle";
+    octx.textAlign = "left";
+    octx.fillText(text, x0, y0);
+    octx.globalAlpha = 0.30;
+    octx.fillText(text, x0 + 2, y0);
+    octx.globalAlpha = 1;
+
+    const mask = octx.getImageData(0, 0, cssW, cssH).data;
+
+    // Word segmentation boundaries (pixels)
+    const wHuman = octx.measureText("HUMAN").width;
+    const wSpace = octx.measureText(" ").width;
+    const wIn = octx.measureText("IN").width;
+
+    const xHuman1 = x0 + wHuman;
+    const xIn0 = xHuman1 + wSpace;
+    const xIn1 = xIn0 + wIn;
+
+    const bleedPx = Math.max(4, Math.floor(fontPx * 0.02));
+
+    function baseColorAtX(px) {
+      if (px < xHuman1 - bleedPx) return COL_G;
+      if (px < xHuman1 + bleedPx) return mix(COL_G, COL_C, (px - (xHuman1 - bleedPx)) / (bleedPx * 2));
+
+      if (px < xIn1 - bleedPx) return COL_C;
+      if (px < xIn1 + bleedPx) return mix(COL_C, COL_Y, (px - (xIn1 - bleedPx)) / (bleedPx * 2));
+
+      return COL_Y;
+    }
+
+    function edgeWeight(px) {
+      const t = px / cssW; // 0..1
+      const left = Math.max(0, 0.33 - t) / 0.33;
+      const right = Math.max(0, t - 0.67) / 0.33;
+      return clamp(left + right, 0, 1);
+    }
+
+    // Precompute subtle holes (keep readability; no minecraft)
+    const holes = new Set();
+    for (let r = 0; r < rows; r++) {
       const y = r * tile + (tile >> 1);
-      const idx = (y * cssW + x) * 4;
-      const on = mask[idx] > 40;
-      if (!on) continue;
+      for (let c = 0; c < cols; c++) {
+        const x = c * tile + (tile >> 1);
+        if (x >= cssW || y >= cssH) continue;
 
-      const xNorm = x / cssW;
-      const ew = edgeWeight(xNorm);
-      const v = y / cssH;
+        const idx = (y * cssW + x) * 4;
+        if (mask[idx] <= 40) continue;
 
-      // subtle hole chance; more at edges + slightly more lower half
-      const base = 0.012 + ew * 0.012 + Math.max(0, v - 0.55) * 0.03;
+        const ew = edgeWeight(x);
+        const v = y / cssH;
 
-      // clustered holes sometimes (2x2)
-      if (rand() < base * 0.35) {
-        for (let rr = 0; rr < 2; rr++) {
-          for (let cc = 0; cc < 2; cc++) {
-            holes.add(`${c + cc},${r + rr}`);
+        // more breakup toward edges + slightly lower
+        const base = 0.010 + ew * 0.06 + Math.max(0, v - 0.55) * 0.03;
+
+        // 2x2 cluster occasionally
+        if (rand() < base * 0.28) {
+          for (let rr = 0; rr < 2; rr++) for (let cc = 0; cc < 2; cc++) holes.add(`${c+cc},${r+rr}`);
+        } else if (rand() < base * 0.18) {
+          holes.add(`${c},${r}`);
+        }
+      }
+    }
+
+    // Draw mosaic tiles (sample mask at tile centers)
+    for (let r = 0; r < rows; r++) {
+      const y = r * tile + (tile >> 1);
+      for (let c = 0; c < cols; c++) {
+        const x = c * tile + (tile >> 1);
+        if (x >= cssW || y >= cssH) continue;
+
+        const idx = (y * cssW + x) * 4;
+        if (mask[idx] <= 40) continue;
+        if (holes.has(`${c},${r}`)) continue;
+
+        const base = baseColorAtX(x);
+
+        // tile brightness + speckle
+        const n = (rand() - 0.5) * 0.40;
+        const bright = 1 + n;
+        const s = rand();
+        const speckMul = s < 0.10 ? 0.75 : (s > 0.95 ? 1.28 : 1.0);
+
+        let rr = clamp(Math.round(base[0] * bright * speckMul), 0, 255);
+        let gg = clamp(Math.round(base[1] * bright * speckMul), 0, 255);
+        let bb = clamp(Math.round(base[2] * bright * speckMul), 0, 255);
+
+        ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
+        ctx.fillRect(c * tile, r * tile, tile, tile);
+
+        // micro “glyph” texture
+        if (rand() < 0.78) {
+          const count = rand() < 0.35 ? 2 : 1;
+          for (let k = 0; k < count; k++) {
+            const mx = c * tile + randi(0, Math.max(0, tile - 2));
+            const my = r * tile + randi(0, Math.max(0, tile - 2));
+            ctx.fillStyle = `rgba(255,255,255,${0.05 + rand() * 0.12})`;
+            ctx.fillRect(mx, my, 1, 1);
+            if (rand() < 0.35) ctx.fillRect(mx + 1, my, 1, 1);
           }
         }
-      } else if (rand() < base * 0.22) {
-        holes.add(`${c},${r}`);
       }
     }
-  }
 
-  // Tile draw
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const x = c * tile + (tile >> 1);
-      const y = r * tile + (tile >> 1);
-      if (x >= cssW || y >= cssH) continue;
+    // Dense streak bands (across top half of logo area)
+    for (let y = bandTop; y < bandBot; y += 2) {
+      if (rand() < 0.14) continue;
 
-      const idx = (y * cssW + x) * 4;
-      const on = mask[idx] > 40;
-      if (!on) continue;
-      if (holes.has(`${c},${r}`)) continue;
+      const segs = 7 + randi(0, 10);
+      const thickness = rand() < 0.55 ? 1 : 2;
 
-      const base = baseColorAtX(x);
+      for (let s = 0; s < segs; s++) {
+        const p = rand();
+        let xStart;
+        if (p < 0.44) xStart = -Math.floor(cssW * 0.08) + Math.floor(rand() * cssW * 0.44);
+        else if (p < 0.88) xStart = Math.floor(cssW * 0.56 + rand() * cssW * 0.52);
+        else xStart = Math.floor(cssW * 0.30 + rand() * cssW * 0.40);
 
-      // brightness variance like reference
-      const n = (rand() - 0.5) * 0.48;
-      const bright = 1 + n;
+        const len = Math.floor(lerp(140, 560, rand()));
+        const xMid = clamp(xStart + len * 0.5, 0, cssW - 1);
 
-      // speckle: occasional dim/hot tiles
-      const s = rand();
-      const speckMul = s < 0.10 ? 0.70 : (s > 0.95 ? 1.30 : 1.0);
+        let col = baseColorAtX(xMid);
+        if (rand() < 0.18) col = mix(col, [255,255,255], 0.14);
 
-      let rr = clamp(Math.round(base[0] * bright * speckMul), 0, 255);
-      let gg = clamp(Math.round(base[1] * bright * speckMul), 0, 255);
-      let bb = clamp(Math.round(base[2] * bright * speckMul), 0, 255);
+        const a = clamp((0.08 + rand() * 0.18) * (1.1 - Math.abs((y/cssH) - 0.30)), 0.05, 0.22);
+        ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
+        ctx.fillRect(xStart, y, len, thickness);
 
-      ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
-      ctx.fillRect(c * tile, r * tile, tile, tile);
-
-      // Micro “glyph texture” inside tiles (this is what your current look lacks)
-      // draw 1–3 small sub-rects inside the tile, like tiny characters.
-      const micro = rand();
-      if (micro < 0.78) {
-        const count = micro < 0.30 ? 2 : 1;
-        for (let k = 0; k < count; k++) {
-          const mx = c * tile + randi(0, Math.max(0, tile - 2));
-          const my = r * tile + randi(0, Math.max(0, tile - 2));
-          ctx.fillStyle = `rgba(255,255,255,${0.05 + rand() * 0.12})`;
-          ctx.fillRect(mx, my, 1, 1);
-          // sometimes a second pixel to look like “glyph”
-          if (rand() < 0.35) ctx.fillRect(mx + 1, my, 1, 1);
+        if (rand() < 0.42) {
+          ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a * 0.55})`;
+          ctx.fillRect(xStart + randi(-10, 10), y + thickness + 1, len - randi(0, 80), 1);
         }
       }
     }
-  }
 
-  // ---- Dense horizontal streak field (matches reference better) ----
-  // Instead of sparse lines, we lay down many broken bands across the logo area.
-  const bandTop = Math.floor(cssH * 0.08);
-  const bandBot = Math.floor(cssH * 0.56);
+    // Drips biased to originate from strokes (probe under letter band)
+    const candidates = [];
+    const probeY = Math.floor(cssH * 0.48);
+    for (let i = 0; i < 220; i++) {
+      const x = randi(Math.floor(cssW * 0.06), Math.floor(cssW * 0.94));
+      const idx = (probeY * cssW + x) * 4;
+      if (mask[idx] > 40) candidates.push(x);
+    }
 
-  for (let y = bandTop; y < bandBot; y += 2) {
-    if (rand() < 0.10) continue; // leave gaps
+    const dripCount = clamp(10 + randi(0, 8), 10, 18);
+    for (let i = 0; i < dripCount; i++) {
+      const x = candidates.length ? candidates[randi(0, candidates.length - 1)] : randi(0, cssW - 1);
+      const yStart = Math.floor(cssH * (0.44 + rand() * 0.22));
+      const len = Math.floor(cssH * (0.18 + rand() * 0.32));
+      const w = clamp(randi(2, 4), 2, 5);
 
-    const yNorm = y / cssH;
-    const thickness = rand() < 0.60 ? 1 : 2;
+      const col = baseColorAtX(x);
+      const a = 0.14 + rand() * 0.24;
 
-    // multiple segments per row
-    const segs = 8 + randi(0, 10);
-
-    for (let s = 0; s < segs; s++) {
-      // bias segments to edges more often
-      const p = rand();
-      let xStart;
-      if (p < 0.42) xStart = -Math.floor(cssW * 0.08) + Math.floor(rand() * cssW * 0.42);
-      else if (p < 0.84) xStart = Math.floor(cssW * 0.58 + rand() * cssW * 0.50);
-      else xStart = Math.floor(cssW * 0.30 + rand() * cssW * 0.40);
-
-      const len = Math.floor(lerp(120, 520, rand()));
-      const xEnd = xStart + len;
-
-      const xMid = clamp(xStart + len * 0.5, 0, cssW - 1);
-      let col = baseColorAtX(xMid);
-
-      // brighten a little on some streaks like phosphor overdrive
-      if (rand() < 0.18) col = mix(col, [255,255,255], 0.14);
-
-      // alpha depends on row area; stronger mid-top
-      const a = (0.08 + rand() * 0.18) * (1.10 - Math.abs(yNorm - 0.30));
-      ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${clamp(a,0.04,0.22)})`;
-
-      ctx.fillRect(xStart, y, len, thickness);
-
-      // secondary ghost band beneath (reference has a lot of this)
-      if (rand() < 0.40) {
-        ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${clamp(a * 0.55,0.02,0.14)})`;
-        ctx.fillRect(xStart + randi(-10, 10), y + thickness + 1, len - randi(0, 60), 1);
+      for (let k = 0; k < len; k++) {
+        if (rand() < 0.16) continue;
+        const yy = yStart + k;
+        if (yy >= cssH) break;
+        ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
+        ctx.fillRect(x, yy, w, 1);
       }
     }
-  }
 
-  // ---- Drips (biased to originate from strokes) ----
-  // Choose drip columns where the mask is ON near the bottom of the letters.
-  const dripCandidates = [];
-  const dripYProbe = Math.floor(cssH * 0.48);
-
-  for (let i = 0; i < 180; i++) {
-    const x = randi(Math.floor(cssW * 0.05), Math.floor(cssW * 0.95));
-    const idx = (dripYProbe * cssW + x) * 4;
-    if (mask[idx] > 40) dripCandidates.push(x);
-  }
-
-  const dripCount = clamp(10 + randi(0, 8), 10, 18);
-  for (let i = 0; i < dripCount; i++) {
-    const x = dripCandidates.length ? dripCandidates[randi(0, dripCandidates.length - 1)] : randi(0, cssW - 1);
-
-    const yStart = Math.floor(cssH * (0.44 + rand() * 0.20));
-    const len = Math.floor(cssH * (0.20 + rand() * 0.35));
-
-    let col = baseColorAtX(x);
-    const a = 0.14 + rand() * 0.24;
-
-    // 2–4px width like reference drips
-    const w = clamp(randi(2, 4), 2, 5);
-
-    for (let k = 0; k < len; k++) {
-      if (rand() < 0.16) continue; // breaks
-      const yy = yStart + k;
-      if (yy >= cssH) break;
-      ctx.fillStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`;
-      ctx.fillRect(x, yy, w, 1);
+    // Fine grain
+    const pts = Math.floor((cssW * cssH) / 2600);
+    for (let i = 0; i < pts; i++) {
+      const x = Math.floor(rand() * cssW);
+      const y = Math.floor(rand() * cssH);
+      ctx.fillStyle = `rgba(255,255,255,${0.018 + rand() * 0.05})`;
+      ctx.fillRect(x, y, 1, 1);
     }
   }
 
-  // ---- Fine grain (subtle) ----
-  const pts = Math.floor((cssW * cssH) / 2600);
-  for (let i = 0; i < pts; i++) {
-    const x = Math.floor(rand() * cssW);
-    const y = Math.floor(rand() * cssH);
-    ctx.fillStyle = `rgba(255,255,255,${0.018 + rand() * 0.05})`;
-    ctx.fillRect(x, y, 1, 1);
-  }
-}
-
-window.addEventListener("resize", () => renderLogo());
-document.addEventListener("DOMContentLoaded", () => renderLogo());
+  window.renderLogo = renderLogo;
+  window.addEventListener("resize", () => renderLogo());
+  document.addEventListener("DOMContentLoaded", () => renderLogo());
+})();
