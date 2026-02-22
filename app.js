@@ -127,7 +127,7 @@ async function boot(){
   ], 35);
 
   await burst(mainMenuLines(), 12);
-  kbdEl.focus();
+  focusKbd();
 }
 
 window.addEventListener("resize", () => {
@@ -148,6 +148,30 @@ kbdEl.addEventListener("keydown", async (e) => {
     clearScreen();
     await burst(mainMenuLines(), 10);
   }
+});
+
+function focusKbd(){
+  // Defer helps Safari/iOS reliably apply focus
+  setTimeout(() => kbdEl.focus(), 0);
+}
+
+// Keep focus on any interaction
+document.addEventListener("pointerdown", focusKbd);
+document.addEventListener("touchstart", focusKbd, { passive: true });
+
+// Global key trap: if user types anywhere, force focus to #kbd
+window.addEventListener("keydown", (e) => {
+  // Let browser shortcuts through
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  // If focus is already in #kbd, do nothing
+  if (document.activeElement === kbdEl) return;
+
+  // If focus is in another input/textarea, don’t steal it
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+
+  focusKbd();
 });
 
 boot();
