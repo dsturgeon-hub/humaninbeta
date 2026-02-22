@@ -13,7 +13,6 @@
         <div class="glass">
 
           <header class="top">
-            <!-- Responsive logo canvas -->
             <div class="logo-panel" aria-label="HUMAN IN BETA Logo">
               <canvas id="logo" class="logo-canvas" aria-hidden="true"></canvas>
             </div>
@@ -32,10 +31,19 @@
           <footer class="promptbar" aria-label="Command prompt">
             <div class="prompt-left">
               <span class="c">Main Board Command?</span>
+              <span id="cmdEcho" class="cmd-echo y" aria-label="Command buffer"></span>
               <span class="cursor y" aria-hidden="true">_</span>
             </div>
-            <!-- hidden input captures typing -->
-            <input id="kbd" class="kbd" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" />
+
+            <!-- focusable hidden input captures typing -->
+            <input
+              id="kbd"
+              class="kbd"
+              autocomplete="off"
+              autocapitalize="none"
+              spellcheck="false"
+              inputmode="text"
+            />
           </footer>
 
         </div>
@@ -43,7 +51,7 @@
     </section>
   </main>
 
-  <!-- IMPORTANT: defer + order -->
+  <!-- IMPORTANT: order + defer -->
   <script src="logo.js" defer></script>
   <script src="app.js" defer></script>
 </body>
