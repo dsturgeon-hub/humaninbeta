@@ -1,7 +1,8 @@
-// app.js — fixed-height “flowing” terminal (ring buffer), never scrolls the browser.
+// app.js — BBS terminal with visible command echo + reliable input capture
 
 const termEl = document.getElementById("term");
 const kbdEl  = document.getElementById("kbd");
+const echoEl = document.getElementById("cmdEcho");
 
 const C = {
   g: (s) => `<span class="g">${s}</span>`,
@@ -14,12 +15,12 @@ let lines = [];
 let maxLines = 18;
 
 function measureMaxLines(){
-  const termBox = termEl.parentElement.getBoundingClientRect();
+  const box = termEl.parentElement.getBoundingClientRect();
   const preStyle = getComputedStyle(termEl);
   const lineHeight = parseFloat(preStyle.lineHeight || "18");
   const padTop = parseFloat(getComputedStyle(termEl.parentElement).paddingTop || "0");
   const padBot = parseFloat(getComputedStyle(termEl.parentElement).paddingBottom || "0");
-  const usable = termBox.height - padTop - padBot;
+  const usable = box.height - padTop - padBot;
   maxLines = Math.max(10, Math.floor(usable / lineHeight) - 1);
 }
 
@@ -33,6 +34,20 @@ function println(html){
   if (lines.length > maxLines) lines.shift();
   render();
 }
+
+function clearScreen(){
+  lines = [];
+  render();
+}
+
+function setEcho(){
+  if (!echoEl) return;
+  withholdingScroll();
+  echoEl.textContent = (kbdEl.value || "").slice(-40);
+}
+
+// Keeps prompt stable (no layout jump) — noop placeholder for future if needed
+function withholdingScroll(){}
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -82,11 +97,6 @@ async function openSection(name){
   ], 16);
 }
 
-function clearScreen(){
-  lines = [];
-  render();
-}
-
 async function handle(cmdRaw){
   const cmd = cmdRaw.trim().toUpperCase();
   if (!cmd) return;
@@ -109,11 +119,82 @@ async function handle(cmdRaw){
   await burst([`${C.y("Unknown command.")} ${C.d("Type")} ${C.y("H")} ${C.d("for help.")}`], 18);
 }
 
+// ---- Input handling (bulletproof) ----
+function focusKbd(){
+  setTimeout(() => kbdEl.focus(), 0);
+}
+
+function clearInput(){
+  kbdEl.value = "";
+  setEcho();
+}
+
+document.addEventListener("pointerdown", focusKbd);
+document.addEventListener("touchstart", focusKbd, { passive: true });
+
+kbdEl.addEventListener("input", setEcho);
+kbdEl.addEventListener("keydown", async (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const val = kbdEl.value;
+    clearInput();
+    await handle(val);
+    return;
+  }
+  if (e.key === "Escape") {
+    e.preventDefault();
+    clearInput();
+    clearScreen();
+    await burst(mainMenuLines(), 10);
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+
+  // If #kbd isn't focused, we emulate the input so no keystrokes are lost.
+  if (document.activeElement !== kbdEl) {
+    e.preventDefault();
+    focusKbd();
+
+    if (e.key.length === 1) {
+      kbdEl.value += e.key;
+      setEcho();
+      return;
+    }
+    if (e.key === "Backspace") {
+      kbdEl.value = kbdEl.value.slice(0, -1);
+      setEcho();
+      return;
+    }
+    if (e.key === "Enter") {
+      const val = kbdEl.value;
+      clearInput();
+      void handle(val);
+      return;
+    }
+    if (e.key === "Escape") {
+      clearInput();
+      clearScreen();
+      void burst(mainMenuLines(), 10);
+    }
+  }
+});
+
+window.addEventListener("resize", () => {
+  measureMaxLines();
+  render();
+  if (typeof window.renderLogo === "function") window.renderLogo();
+});
+
+// ---- Boot ----
 async function boot(){
   measureMaxLines();
   render();
 
-  // ensure logo render (logo.js defines window.renderLogo)
   if (typeof window.renderLogo === "function") window.renderLogo();
 
   await burst([
@@ -128,51 +209,7 @@ async function boot(){
 
   await burst(mainMenuLines(), 12);
   focusKbd();
+  setEcho();
 }
-
-window.addEventListener("resize", () => {
-  measureMaxLines();
-  render();
-  if (typeof window.renderLogo === "function") window.renderLogo();
-});
-
-function focusKbd(){
-  if (document.activeElement !== kbdEl) {
-    kbdEl.focus();
-  }
-}
-
-// Always focus when clicking anywhere
-document.addEventListener("pointerdown", focusKbd);
-
-// Capture Enter reliably
-kbdEl.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();   // critical
-    const val = kbdEl.value;
-    kbdEl.value = "";
-    await handle(val);
-  }
-  if (e.key === "Escape") {
-    e.preventDefault();
-    kbdEl.value = "";
-    clearScreen();
-    await burst(mainMenuLines(), 10);
-  }
-});
-
-// Global key capture (prevents lost first character)
-window.addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-
-  if (document.activeElement !== kbdEl) {
-    e.preventDefault();
-    focusKbd();
-    // forward the key into the input
-    if (e.key.length === 1) {
-      kbdEl.value += e.key;
-    }
-  }
-});
 
 boot();
