@@ -1,50 +1,46 @@
-/* styles.css — complete file
-   Renegade-style CRT + fixed, non-scrolling viewport + reference-style logo
-*/
 :root{
-  --bg: #000;
-  --ink: #c6ffd8;
+  --bg:#000;
+  --ink:#c6ffd8;
 
-  /* ANSI-ish palette */
-  --g: #7CFF7A;         /* phosphor green */
-  --c: #64D7FF;         /* cyan */
-  --y: #FFD468;         /* amber/yellow */
-  --dim: rgba(198,255,216,.55);
+  /* 3-color ANSI-ish */
+  --g:#7CFF7A;
+  --c:#64D7FF;
+  --y:#FFD468;
+  --dim:rgba(198,255,216,.55);
 
-  --glow: rgba(0,255,140,.18);
-  --glow2: rgba(80,255,200,.10);
+  --glow:rgba(0,255,140,.18);
+  --glow2:rgba(80,255,200,.10);
 }
 
-*{ box-sizing: border-box; }
-html, body{ height:100%; }
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 
 body{
   margin:0;
-
-  /* critical: never allow browser scroll */
-  overflow: hidden;
+  overflow:hidden; /* never scroll the browser */
 
   background: radial-gradient(1400px 900px at 50% 30%, #070b0a 0%, #000 60%, #000 100%);
   display:grid;
   place-items:center;
-  color: var(--ink);
+
+  color:var(--ink);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
-/* Full-stage container */
+/* stage */
 .stage{
-  width: min(1100px, 96vw);
-  height: min(760px, 92vh);
+  width:min(1100px, 96vw);
+  height:min(760px, 92vh);
   display:grid;
   place-items:center;
 }
 
-/* Bezel */
+/* bezel */
 .bezel{
-  width: 100%;
-  height: 100%;
-  border-radius: 34px;
-  padding: clamp(18px, 2.8vw, 34px);
+  width:100%;
+  height:100%;
+  border-radius:34px;
+  padding:clamp(18px, 2.8vw, 34px);
   background:
     radial-gradient(120% 90% at 50% 10%, rgba(255,255,255,.10), rgba(255,255,255,0) 40%),
     radial-gradient(140% 120% at 50% 50%, #1b1f22 0%, #0c0f12 55%, #050607 100%);
@@ -54,20 +50,20 @@ body{
     inset 0 0 40px rgba(0,0,0,.8);
 }
 
-/* CRT */
+/* crt */
 .crt{
-  width: 100%;
-  height: 100%;
-  border-radius: 22px;
-  background: #000;
-  position: relative;
-  overflow: hidden;
+  width:100%;
+  height:100%;
+  border-radius:22px;
+  background:#000;
+  position:relative;
+  overflow:hidden;
   box-shadow:
     inset 0 0 0 2px rgba(120,255,200,.10),
     inset 0 0 60px rgba(0,255,140,.10);
 }
 
-/* CRT overlays */
+/* scanlines + slight RGB triad */
 .crt::before{
   content:"";
   position:absolute;
@@ -86,11 +82,12 @@ body{
       rgba(0,255,0,.012) 2px,
       rgba(0,140,255,.012) 4px
     );
-  mix-blend-mode: overlay;
-  opacity: .35;
+  mix-blend-mode:overlay;
+  opacity:.35;
   pointer-events:none;
 }
 
+/* vignette */
 .crt::after{
   content:"";
   position:absolute;
@@ -104,397 +101,129 @@ body{
     radial-gradient(circle at 50% 30%,
       rgba(120,255,200,.08),
       rgba(0,0,0,0) 55%);
-  transform: scale(1.05);
+  transform:scale(1.05);
   pointer-events:none;
 }
 
-/* Subtle flicker */
-@media (prefers-reduced-motion: no-preference){
-  .crt{ animation: flicker 7s infinite; }
+@media (prefers-reduced-motion:no-preference){
+  .crt{ animation:flicker 7s infinite; }
   @keyframes flicker{
-    0%,100%{ filter: brightness(1); }
-    48%{ filter: brightness(1.02); }
-    50%{ filter: brightness(.98); }
-    52%{ filter: brightness(1.01); }
+    0%,100%{ filter:brightness(1); }
+    48%{ filter:brightness(1.02); }
+    50%{ filter:brightness(.98); }
+    52%{ filter:brightness(1.01); }
   }
 }
 
-/* Glass content area */
+/* glass layout */
 .glass{
   position:absolute;
   inset:0;
-  padding: clamp(16px, 2.2vw, 26px);
+  padding:clamp(16px, 2.2vw, 26px);
   display:flex;
-  flex-direction: column;
-  gap: 10px;
-
-  /* slight curvature */
-  transform: perspective(900px) rotateX(1.2deg);
+  flex-direction:column;
+  gap:10px;
+  transform:perspective(900px) rotateX(1.2deg);
 }
 
-/* ANSI-ish utility colors */
-.g{ color: var(--g); }
-.c{ color: var(--c); }
-.y{ color: var(--y); }
-.dim{ color: var(--dim); }
+/* ansi colors */
+.g{ color:var(--g); }
+.c{ color:var(--c); }
+.y{ color:var(--y); }
+.dim{ color:var(--dim); }
 
-/* Header layout */
-.top{ flex: 0 0 auto; }
-.logo-wrap{ margin-bottom: 6px; }
-.tagline{
-  font-weight: 700;
-  letter-spacing: .22ch;
-  margin-top: 4px;
-  text-shadow: 0 0 10px var(--glow);
-}
+/* header */
+.top{ flex:0 0 auto; }
 
 .headerline{
   display:flex;
   align-items:center;
-  gap: 10px;
-  font-size: clamp(14px, 1.55vw, 18px);
-  white-space: nowrap;
-}
-
-.logo-panel{
-  width: 100%;
-  display: grid;
-  place-items: start;
-  margin: 2px 0 6px;
-}
-#logo, .logo-canvas {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
-.logo-canvas{
-  width: min(100%, 980px);
-  height: auto;
-  image-rendering: pixelated;          /* important: keeps the “cell” look crisp */
-  image-rendering: crisp-edges;
-  filter:
-    saturate(1.15)
-    contrast(1.10)
-    brightness(1.02)
-    drop-shadow(0 0 12px rgba(0,255,140,.18))
-    drop-shadow(0 0 22px rgba(80,255,200,.10));
+  gap:10px;
+  font-size:clamp(14px, 1.55vw, 18px);
+  white-space:nowrap;
 }
 
 .bracket{
-  font-weight: 800;
-  letter-spacing: .08ch;
+  font-weight:800;
+  letter-spacing:.08ch;
 }
-
 .rule{
-  flex: 1 1 auto;
+  flex:1 1 auto;
   overflow:hidden;
-  text-overflow: clip;
+  text-overflow:clip;
 }
-
 .right{
-  flex: 0 0 auto;
-  text-shadow: 0 0 10px var(--glow);
+  flex:0 0 auto;
+  text-shadow:0 0 10px var(--glow);
 }
 
-/* Terminal viewport: fixed height; never grows */
-.term{
-  flex: 1 1 auto;
-  min-height: 0;
-  border-top: 1px dashed rgba(124,255,122,.30);
-  border-bottom: 1px dashed rgba(124,255,122,.30);
-  padding: 12px 0;
+/* logo canvas area */
+.logo-panel{
+  width:100%;
+  max-width: 980px;
+}
 
-  /* critical: prevents any layout expansion */
-  overflow: hidden;
+.logo-canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  /* critical: avoid blur; keep mosaic look */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+
+  /* subtle phosphor glow without blurring the pixels too much */
+  filter:
+    saturate(1.08)
+    contrast(1.08)
+    drop-shadow(0 0 10px rgba(0,255,140,.16))
+    drop-shadow(0 0 18px rgba(80,255,200,.08));
+}
+
+/* terminal viewport: fixed, never scrolls the browser */
+.term{
+  flex:1 1 auto;
+  min-height:0; /* critical for flex children */
+  border-top:1px dashed rgba(124,255,122,.30);
+  border-bottom:1px dashed rgba(124,255,122,.30);
+  padding:12px 0;
+  overflow:hidden;
 }
 
 .term-pre{
   margin:0;
-  white-space: pre;
-  line-height: 1.15;
-  font-size: clamp(14px, 1.55vw, 18px);
+  white-space:pre;
+  line-height:1.15;
+  font-size:clamp(14px, 1.55vw, 18px);
   text-shadow:
     0 0 10px var(--glow),
     0 0 18px var(--glow2);
 }
 
-/* Prompt fixed at bottom */
+/* prompt */
 .promptbar{
-  flex: 0 0 auto;
+  flex:0 0 auto;
   display:flex;
   align-items:center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 6px;
+  justify-content:space-between;
+  gap:12px;
+  padding-top:6px;
 }
 
 .prompt-left{
   display:flex;
   align-items:center;
-  gap: 10px;
-  font-size: clamp(16px, 1.7vw, 20px);
-  text-shadow: 0 0 10px var(--glow);
+  gap:10px;
+  font-size:clamp(16px, 1.7vw, 20px);
+  text-shadow:0 0 10px var(--glow);
 }
 
-.cursor{
-  animation: blink 1s steps(1,end) infinite;
-}
+.cursor{ animation:blink 1s steps(1,end) infinite; }
 @keyframes blink{ 50%{ opacity:0; } }
 
-/* Hidden keyboard capture */
 .kbd{
   position:absolute;
-  width: 1px;
-  height: 1px;
+  width:1px;
+  height:1px;
   opacity:0;
   pointer-events:none;
-}
-
-/* ============================================================================
-   REFERENCE-STYLE LOGO (closer to provided image)
-   - outside streaks that bleed past glyphs
-   - chunky mosaic tiles + speckle texture
-   - word-biased color (HUMAN green-heavy, IN cyan-heavy, BETA yellow-heavy)
-   - shatter bits concentrated at left/right
-   - sparse vertical drips
-   ========================================================================== */
-
-.logo-ref{
-  position: relative;
-  display: inline-block;
-  margin: 6px 0 10px;
-  isolation: isolate;
-}
-
-/* external horizontal streaks */
-.logo-ref .streaks{
-  position:absolute;
-  left: -10%;
-  right: -10%;
-  top: 6%;
-  height: 86%;
-  pointer-events:none;
-  z-index: 1;
-
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(124,255,122,.45) 0 30px,
-      rgba(100,215,255,.32) 30px 50px,
-      rgba(255,212,104,.28) 50px 74px,
-      rgba(0,0,0,0) 74px 138px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,.10) 0 2px,
-      rgba(0,0,0,0) 2px 16px
-    );
-
-  /* broken horizontal bands */
-  -webkit-mask-image:
-    repeating-linear-gradient(
-      to bottom,
-      #000 0 6px,
-      transparent 6px 14px
-    ),
-    radial-gradient(circle at 50% 45%, #000 0 62%, transparent 84%);
-  -webkit-mask-composite: source-in;
-          mask-composite: intersect;
-
-  filter: blur(.9px) contrast(1.06) saturate(1.12);
-  opacity: .72;
-  mix-blend-mode: screen;
-  transform: translateX(-6px);
-}
-
-/* WORD-BIASED fill: 3 spans inside one element.
-   You will want your HTML text split like:
-   <span class="w w-human">HUMAN</span> <span class="w w-in">IN</span> <span class="w w-beta">BETA</span>
-*/
-.logo-ref .text{
-  position: relative;
-  z-index: 2;
-  font-weight: 900;
-  font-size: clamp(46px, 6vw, 88px);
-  letter-spacing: .07ch;
-  line-height: .92;
-
-  display:flex;
-  gap: .45ch;
-  align-items: baseline;
-
-  /* mild phosphor */
-  filter: contrast(1.10) saturate(1.12);
-  text-shadow:
-    0 0 12px rgba(0,255,140,.18),
-    0 0 22px rgba(80,255,200,.10);
-}
-
-/* Common “ANSI mosaic” texture used by each word */
-.logo-ref .w{
-  position: relative;
-  color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-
-/* HUMAN: green-heavy with slight cyan leakage */
-.logo-ref .w-human{
-  background:
-    /* speckle */
-    radial-gradient(circle at 12% 28%, rgba(255,255,255,.20) 0 1px, transparent 2px),
-    radial-gradient(circle at 33% 62%, rgba(255,255,255,.16) 0 1px, transparent 2px),
-    radial-gradient(circle at 61% 41%, rgba(0,0,0,.25) 0 1px, transparent 2px),
-    radial-gradient(circle at 78% 70%, rgba(255,255,255,.14) 0 1px, transparent 2px),
-    /* chunky cell grid */
-    repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient( 0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    /* biased gradient */
-    linear-gradient(90deg,
-      #7CFF7A 0%,
-      #7CFF7A 70%,
-      #64D7FF 100%
-    );
-  background-size:
-    40px 36px, 54px 48px, 58px 52px, 62px 56px,
-    10px 10px, 10px 10px,
-    100% 100%;
-}
-
-/* IN: cyan-heavy with green/yellow edges */
-.logo-ref .w-in{
-  background:
-    radial-gradient(circle at 12% 28%, rgba(255,255,255,.20) 0 1px, transparent 2px),
-    radial-gradient(circle at 33% 62%, rgba(255,255,255,.16) 0 1px, transparent 2px),
-    radial-gradient(circle at 61% 41%, rgba(0,0,0,.25) 0 1px, transparent 2px),
-    radial-gradient(circle at 78% 70%, rgba(255,255,255,.14) 0 1px, transparent 2px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient( 0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    linear-gradient(90deg,
-      #7CFF7A 0%,
-      #64D7FF 35%,
-      #64D7FF 75%,
-      #FFD468 100%
-    );
-  background-size:
-    40px 36px, 54px 48px, 58px 52px, 62px 56px,
-    10px 10px, 10px 10px,
-    100% 100%;
-}
-
-/* BETA: yellow-heavy with cyan leakage */
-.logo-ref .w-beta{
-  background:
-    radial-gradient(circle at 12% 28%, rgba(255,255,255,.20) 0 1px, transparent 2px),
-    radial-gradient(circle at 33% 62%, rgba(255,255,255,.16) 0 1px, transparent 2px),
-    radial-gradient(circle at 61% 41%, rgba(0,0,0,.25) 0 1px, transparent 2px),
-    radial-gradient(circle at 78% 70%, rgba(255,255,255,.14) 0 1px, transparent 2px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    repeating-linear-gradient( 0deg, rgba(255,255,255,.16) 0 1px, transparent 1px 10px),
-    linear-gradient(90deg,
-      #64D7FF 0%,
-      #FFD468 35%,
-      #FFD468 100%
-    );
-  background-size:
-    40px 36px, 54px 48px, 58px 52px, 62px 56px,
-    10px 10px, 10px 10px,
-    100% 100%;
-}
-
-/* Smear: add streaked “inside-text” slices (subtle; external streaks do most work) */
-.logo-ref .text::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index: 3;
-  pointer-events:none;
-
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(124,255,122,.30) 0 14px,
-      rgba(100,215,255,.26) 14px 24px,
-      rgba(255,212,104,.22) 24px 36px,
-      rgba(0,0,0,0) 36px 78px
-    );
-
-  opacity: .35;
-  filter: blur(.8px);
-  mix-blend-mode: screen;
-
-  /* only show in a few horizontal “bands” like reference */
-  -webkit-mask-image:
-    repeating-linear-gradient(to bottom, #000 0 10px, transparent 10px 22px);
-  -webkit-mask-composite: source-in;
-          mask-composite: intersect;
-}
-
-/* Shatter edge sparkle concentrated at left/right */
-.logo-ref .text::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index: 4;
-  pointer-events:none;
-
-  background:
-    linear-gradient(90deg, rgba(124,255,122,.35), rgba(100,215,255,.22), rgba(255,212,104,.18));
-
-  opacity: .26;
-  filter: blur(.25px);
-  mix-blend-mode: screen;
-
-  -webkit-mask-image:
-    /* left/right emphasis */
-    radial-gradient(circle at 6% 45%,  #000 0 55%, transparent 63%),
-    radial-gradient(circle at 94% 45%, #000 0 55%, transparent 63%),
-    /* block noise */
-    repeating-linear-gradient(90deg, #000 0 14px, transparent 14px 18px, #000 18px 36px, transparent 36px 44px),
-    repeating-linear-gradient( 0deg, #000 0 11px, transparent 11px 16px, #000 16px 34px, transparent 34px 42px);
-  -webkit-mask-composite: source-in;
-          mask-composite: intersect;
-}
-
-/* Sparse vertical drips under logo */
-.logo-ref .drips{
-  position:absolute;
-  left: -2%;
-  right: -2%;
-  top: 78%;
-  height: 44%;
-  z-index: 0;
-  pointer-events:none;
-
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(124,255,122,.40) 0 3px,
-      rgba(0,0,0,0) 3px 28px
-    );
-
-  -webkit-mask-image:
-    linear-gradient(#000,#000),
-    repeating-linear-gradient(90deg,
-      transparent 0 90px, #000 90px 96px, transparent 96px 240px,
-      #000 240px 246px, transparent 246px 390px,
-      #000 390px 396px, transparent 396px 560px
-    ),
-    linear-gradient(to bottom, #000 0%, transparent 92%);
-  -webkit-mask-composite: source-in, source-in, source-in;
-          mask-composite: intersect;
-
-  opacity: .55;
-  filter: blur(.6px);
-  mix-blend-mode: screen;
-}
-
-/* Optional motion */
-@media (prefers-reduced-motion: no-preference){
-  .logo-ref .streaks{
-    animation: streakMove 3.4s steps(6,end) infinite;
-  }
-  @keyframes streakMove{
-    0%,100%{ transform: translateX(-6px); background-position: 0 0, 0 0; }
-    50%    { transform: translateX(-16px); background-position: 180px 0, 60px 0; }
-  }
 }
