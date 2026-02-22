@@ -27,7 +27,6 @@ body{
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
-/* stage */
 .stage{
   width:min(1100px, 96vw);
   height:min(760px, 92vh);
@@ -35,7 +34,6 @@ body{
   place-items:center;
 }
 
-/* bezel */
 .bezel{
   width:100%;
   height:100%;
@@ -50,7 +48,6 @@ body{
     inset 0 0 40px rgba(0,0,0,.8);
 }
 
-/* crt */
 .crt{
   width:100%;
   height:100%;
@@ -63,7 +60,6 @@ body{
     inset 0 0 60px rgba(0,255,140,.10);
 }
 
-/* scanlines + slight RGB triad */
 .crt::before{
   content:"";
   position:absolute;
@@ -87,7 +83,6 @@ body{
   pointer-events:none;
 }
 
-/* vignette */
 .crt::after{
   content:"";
   position:absolute;
@@ -115,7 +110,6 @@ body{
   }
 }
 
-/* glass layout */
 .glass{
   position:absolute;
   inset:0;
@@ -126,13 +120,12 @@ body{
   transform:perspective(900px) rotateX(1.2deg);
 }
 
-/* ansi colors */
+/* ANSI-ish colors */
 .g{ color:var(--g); }
 .c{ color:var(--c); }
 .y{ color:var(--y); }
 .dim{ color:var(--dim); }
 
-/* header */
 .top{ flex:0 0 auto; }
 
 .headerline{
@@ -157,7 +150,6 @@ body{
   text-shadow:0 0 10px var(--glow);
 }
 
-/* logo canvas area */
 .logo-panel{
   width:100%;
   max-width: 980px;
@@ -167,11 +159,8 @@ body{
   display:block;
   width:100%;
   height:auto;
-  /* critical: avoid blur; keep mosaic look */
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-
-  /* subtle phosphor glow without blurring the pixels too much */
   filter:
     saturate(1.08)
     contrast(1.08)
@@ -179,10 +168,9 @@ body{
     drop-shadow(0 0 18px rgba(80,255,200,.08));
 }
 
-/* terminal viewport: fixed, never scrolls the browser */
 .term{
   flex:1 1 auto;
-  min-height:0; /* critical for flex children */
+  min-height:0;
   border-top:1px dashed rgba(124,255,122,.30);
   border-bottom:1px dashed rgba(124,255,122,.30);
   padding:12px 0;
@@ -199,7 +187,6 @@ body{
     0 0 18px var(--glow2);
 }
 
-/* prompt */
 .promptbar{
   flex:0 0 auto;
   display:flex;
@@ -217,10 +204,20 @@ body{
   text-shadow:0 0 10px var(--glow);
 }
 
+/* NEW: visible command echo */
+.cmd-echo{
+  display:inline-block;
+  min-width: 12ch;
+  max-width: 40ch;
+  white-space: pre;
+  overflow:hidden;
+  text-overflow: clip;
+}
+
 .cursor{ animation:blink 1s steps(1,end) infinite; }
 @keyframes blink{ 50%{ opacity:0; } }
 
-/* Hidden but focusable input (DO NOT use pointer-events:none) */
+/* Hidden but focusable input (do NOT use pointer-events:none) */
 .kbd{
   position: fixed;
   left: -9999px;
